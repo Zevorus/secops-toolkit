@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 from typing import Optional, Any, List, Dict
 from secops_toolkit.model.common import PaginatedResponse
@@ -47,6 +47,7 @@ class CompilationDiagnostic(BaseModel):
 
 
 class InputsUsed(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
     data_table_resource_names: List[str] = Field([], alias="dataTableResourceNames")
     uses_udm: bool = Field(False, alias="usesUdm")
 
@@ -56,6 +57,7 @@ class Rule(BaseModel):
     Represents the definition and metadata of a detection rule.
     Ref: https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.rules
     """
+    model_config = ConfigDict(populate_by_name=True)
     name: str = Field()
     revision_id: Optional[str] = Field(None, alias="revisionId")
     display_name: Optional[str] = Field(None, alias="displayName")
@@ -81,6 +83,7 @@ class RuleDeployment(BaseModel):
     Represents the deployment settings and status for a rule.
     Ref: https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.rules/deployment
     """
+    model_config = ConfigDict(populate_by_name=True)
     name: str = Field()
     enabled: bool = Field(True)
     alerting: bool = Field(True)
@@ -93,6 +96,7 @@ class RuleDeployment(BaseModel):
 
 class RuleList(PaginatedResponse):
     """Lists Rules."""
+    model_config = ConfigDict(populate_by_name=True)
     rules: List[Rule] = Field([], alias="rules")
 
 

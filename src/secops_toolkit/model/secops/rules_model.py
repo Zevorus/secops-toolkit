@@ -24,20 +24,16 @@ class CompilationState(str, Enum):
     FAILED = "FAILED"
 
 
-class Severity(str, Enum):
-    SEVERITY_UNSPECIFIED = "SEVERITY_UNSPECIFIED"
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-    CRITICAL = "CRITICAL"
-
-
 class ExecutionState(str, Enum):
     EXECUTION_STATE_UNSPECIFIED = "EXECUTION_STATE_UNSPECIFIED"
     DEFAULT = "DEFAULT"
     LIMITED = "LIMITED"
     PAUSED = "PAUSED"
 
+
+class Severity(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    display_name: str = Field(alias="displayName")
 
 class CompilationDiagnostic(BaseModel):
     message: str = Field()

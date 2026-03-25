@@ -19,3 +19,6 @@ class SecOpsClient(SecOpsBaseClient):
         # Use an instance metadata call to test connectivity
         instance_url = self._get_api_parent()
         return self._request("GET", instance_url) is not None
+    
+    def show_secops_api_endpoint(self) -> str:
+        return self.base_url

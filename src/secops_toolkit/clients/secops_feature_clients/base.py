@@ -20,6 +20,9 @@ class SecOpsBaseClient:
         self.project_number = os.getenv("SECOPS_PROJECT_NUMBER")
         self.instance_id = os.getenv("SECOPS_INSTANCE_ID")
         self.location = os.getenv("SECOPS_LOCATION")
+
+        self._validate_env()
+
         self.version = version
 
         # Authentication parameters
@@ -53,3 +56,8 @@ class SecOpsBaseClient:
         except Exception as e:
             LOGGER.error(f"Error during request: {e}")
             return None
+
+    def _validate_env(self):
+        for attribute, value in self.__dict__.items():
+            if value is None:
+                raise RuntimeError(f"Missing required environment variable: {attribute}")

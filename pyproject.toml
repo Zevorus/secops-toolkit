@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "secops-toolkit"
+version = "0.1.0"
+description = "A CLI/library tool to interact with Google SecOps and Threat Intelligence via RESTful API."
+authors = [
+    { name = "rodajrc" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "google-auth",
+    "python-dotenv",
+    "click",
+    "pydantic~=2.6.0",
+    "PyYAML",
+    "ruamel.yaml"
+]
+
+[project.scripts]
+secops-toolkit = "secops_toolkit.cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["secops_toolkit*"]

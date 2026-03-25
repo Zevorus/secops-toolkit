@@ -1,0 +1,7 @@
+pytest
+pytest-mock
+pytest-recording
+black
+flake8
+mypy
+types-requests

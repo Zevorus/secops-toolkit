@@ -46,3 +46,18 @@ def test_secops_get_rule_deployment(mock_secops_client):
     assert deployment.enabled is True
     assert deployment.alerting is False
     assert deployment.run_frequency == "LIVE"
+
+
+def test_secops_get_rule(mock_secops_client):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        "name": "projects/123/locations/us/instances/abc/rules/rule_1",
+        "displayName": "test_rule",
+        "text": "rule test_rule { condition: true }"
+    }
+    mock_response.status_code = 200
+    mock_secops_client.rules.session.request.return_value = mock_response
+
+    rule = mock_secops_client.rules.get_rule("rule_1")
+    assert rule.display_name == "test_rule"
+    assert "condition: true" in rule.text

@@ -22,6 +22,17 @@ class RulesClient(SecOpsBaseClient):
             return RuleList(rules=[], next_page_token="")
         return RuleList(**response)
 
+    def get_rule(self, rule_id: str) -> Optional[Rule]:
+        """
+        Retrieves a single detection rule.
+        Ref: https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.rules/get
+        """
+        get_rule_url = self._craft_url("rules", rule_id)
+        response = self._request("GET", get_rule_url)
+        if not response:
+            return None
+        return Rule(**response)
+
     def get_rule_deployment(self, rule_id: str) -> Optional[RuleDeployment]:
         """
         Retrieves the deployment status of a specific rule.

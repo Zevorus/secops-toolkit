@@ -1,6 +1,6 @@
 import click
 import json
-from typing import List
+from typing import List, Optional
 from secops_toolkit.clients.secops_client import SecOpsClient
 from secops_toolkit.cli.utils.parse_rule_name import parse_rule_name
 from secops_toolkit.model.secops.rules_model import Rule
@@ -53,6 +53,33 @@ def list_all_rules(client: SecOpsClient, table: bool, show_name: bool):
     """List all custom detection rules (automatically handles all pages)."""
     rules = list(client.rules.list_all_rules())
     _format_rules_output(rules, table, show_name)
+
+
+@rules.command(name="get-rule")
+@click.argument("rule_id")
+@click.option("-o", "--output", help="Output file path (defaults to {rule_id}.yaral).")
+@click.pass_obj
+def get_rule_command(client: SecOpsClient, rule_id: str, output: Optional[str]):
+    """Fetch the raw YARA-L content of a rule and save it to a local file."""
+    if not output:
+        output = f"{rule_id}.yaral"
+
+    click.echo(f"Fetching rule '{rule_id}'...")
+    rule = client.rules.get_rule(rule_id=rule_id)
+    if not rule:
+        click.echo(f"Error: Rule '{rule_id}' not found.")
+        return
+
+    if not rule.text:
+        click.echo(f"Error: Rule '{rule_id}' has no YARA-L text content.")
+        return
+
+    try:
+        with open(output, "w") as f:
+            f.write(rule.text)
+        click.secho(f"Successfully saved YARA-L content to: {output}", fg="green")
+    except Exception as e:
+        click.echo(f"Error writing to file: {e}")
 
 
 @rules.command(name="get-deployment")

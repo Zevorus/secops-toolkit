@@ -4,13 +4,18 @@ from typing import Optional, Any
 from google.auth.transport.requests import AuthorizedSession
 from google.auth import default
 from requests import HTTPError
+from dotenv import load_dotenv, find_dotenv
 
 LOGGER = logging.getLogger(__name__)
 
+
 class SecOpsBaseClient:
     """Base client sharing common functionality for Google SecOps."""
-    
+
     def __init__(self, version: str = "v1beta"):
+        # Ensure environment is loaded
+        load_dotenv(find_dotenv())
+
         self.base_url = os.getenv("SECOPS_API_ENDPOINT")
         self.project_number = os.getenv("SECOPS_PROJECT_NUMBER")
         self.instance_id = os.getenv("SECOPS_INSTANCE_ID")

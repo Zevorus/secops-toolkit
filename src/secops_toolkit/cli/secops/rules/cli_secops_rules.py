@@ -1,7 +1,31 @@
 import click
 import json
+from typing import List
 from secops_toolkit.clients.secops_client import SecOpsClient
 from secops_toolkit.cli.utils.parse_rule_name import parse_rule_name
+from secops_toolkit.model.secops.rules_model import Rule
+
+
+def _format_rules_output(rules: List[Rule], table: bool, show_name: bool):
+    """Internal helper to standardize rule formatting."""
+    if not rules:
+        click.echo("No rules found or error occurred.")
+        return
+
+    if table:
+        click.echo(f"{'RULE NAME':<60} | {'RULE ID'}")
+        click.echo("-" * 100)
+        for rule in rules:
+            parsed = parse_rule_name(rule.name)
+            display_name = rule.display_name or "N/A"
+            click.echo(f"{display_name:<60} | {parsed.rule_id}")
+    else:
+        for rule in rules:
+            if show_name:
+                click.echo(rule.display_name or "N/A")
+            else:
+                parsed = parse_rule_name(rule.name)
+                click.echo(parsed.rule_id)
 
 
 @click.group()
@@ -9,29 +33,35 @@ def rules():
     """Commands for Google SecOps YARA-L Detection Rules"""
     pass
 
-@rules.command()
+
+@rules.command(name="list")
 @click.pass_obj
 @click.option("--page-size", default=10, help="Number of rules to list.", show_default=True)
-def get_rules(client: SecOpsClient, page_size: int):
+@click.option("-t", "--table", is_flag=True, default=False, help="Display Name and ID in a table.")
+@click.option("-N", "--show-name", is_flag=True, default=False, help="Show Display Name instead of Rule ID.")
+def list_rules(client: SecOpsClient, page_size: int, table: bool, show_name: bool):
     """List custom detection rules in the SecOps instance."""
-    rules = client.rules.list_rules(page_size=page_size)
-    if len(rules.rules) > 0:
-        for rule in rules.rules:
-            parsed_rule_name = parse_rule_name(rule.name)
-            click.echo(parsed_rule_name.rule_id )
-    else:
-        click.echo("No rules found or error occurred.")
+    rules_resp = client.rules.list_rules(page_size=page_size)
+    _format_rules_output(rules_resp.rules, table, show_name)
 
 
-@rules.command()
+@rules.command(name="list-all")
 @click.pass_obj
-def get_all_rules(client: SecOpsClient):
+@click.option("-t", "--table", is_flag=True, default=False, help="Display Name and ID in a table.")
+@click.option("-N", "--show-name", is_flag=True, default=False, help="Show Display Name instead of Rule ID.")
+def list_all_rules(client: SecOpsClient, table: bool, show_name: bool):
     """List all custom detection rules (automatically handles all pages)."""
-    for rule in client.rules.list_all_rules():
-        parsed = parse_rule_name(rule.name)
-        click.echo(parsed.rule_id)
+    rules = list(client.rules.list_all_rules())
+    _format_rules_output(rules, table, show_name)
 
-        
-    
-        
 
+@rules.command(name="get-deployment")
+@click.argument("rule_id")
+@click.pass_obj
+def get_deployment(client: SecOpsClient, rule_id: str):
+    """View the operational status (deployment) of a specific rule."""
+    deployment = client.rules.get_rule_deployment(rule_id=rule_id)
+    if deployment:
+        click.echo(json.dumps(deployment.model_dump(by_alias=True), indent=2))
+    else:
+        click.echo(f"Error: Rule '{rule_id}' deployment information could not be found.")

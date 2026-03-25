@@ -1,34 +1,48 @@
 import pytest
 from unittest.mock import MagicMock
 from secops_toolkit.clients import SecOpsClient
+from secops_toolkit.model.secops.rules_model import RuleList, RuleDeployment
+
 
 @pytest.fixture
 def mock_secops_client():
     client = SecOpsClient()
     # Mocking individual secops_feature_clients sessions
     client.rules.session = MagicMock()
-    client.tables.session = MagicMock()
-    client.reference_lists.session = MagicMock()
     return client
 
+
 def test_secops_list_rules(mock_secops_client):
+    # Mock Response for RuleList
     mock_response = MagicMock()
-    mock_response.json.return_value = {"rules": [{"name": "test_rule"}]}
+    mock_response.json.return_value = {
+        "rules": [{"name": "projects/123/locations/us/instances/abc/rules/rule_1", "displayName": "test_rule"}],
+        "nextPageToken": "token_123"
+    }
     mock_response.status_code = 200
     mock_secops_client.rules.session.request.return_value = mock_response
-    
-    rules = mock_secops_client.rules.list_rules()
-    assert rules is not None
-    assert "rules" in rules
-    assert rules["rules"][0]["name"] == "test_rule"
 
-def test_secops_list_tables(mock_secops_client):
+    rules_resp = mock_secops_client.rules.list_rules()
+    assert isinstance(rules_resp, RuleList)
+    assert len(rules_resp.rules) == 1
+    assert rules_resp.rules[0].display_name == "test_rule"
+    assert rules_resp.next_page_token == "token_123"
+
+
+def test_secops_get_rule_deployment(mock_secops_client):
+    # Mock Response for RuleDeployment
     mock_response = MagicMock()
-    mock_response.json.return_value = {"dataTables": [{"id": "table_1"}]}
+    mock_response.json.return_value = {
+        "name": "projects/123/locations/us/instances/abc/rules/rule_1/deployment",
+        "enabled": True,
+        "alerting": False,
+        "runFrequency": "LIVE"
+    }
     mock_response.status_code = 200
-    mock_secops_client.tables.session.request.return_value = mock_response
-    
-    tables = mock_secops_client.tables.list_tables()
-    assert tables is not None
-    assert "dataTables" in tables
-    assert tables["dataTables"][0]["id"] == "table_1"
+    mock_secops_client.rules.session.request.return_value = mock_response
+
+    deployment = mock_secops_client.rules.get_rule_deployment("rule_1")
+    assert isinstance(deployment, RuleDeployment)
+    assert deployment.enabled is True
+    assert deployment.alerting is False
+    assert deployment.run_frequency == "LIVE"

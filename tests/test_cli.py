@@ -12,7 +12,7 @@ def cli_runner():
 
 
 def test_cli_secops_rules_list(cli_runner):
-    with patch("secops_toolkit.cli.secops.rules.cli_secops_rules.SecOpsClient") as mock_client:
+    with patch("secops_toolkit.cli.secops.cli_secops.SecOpsClient") as mock_client:
         instance = mock_client.return_value
         instance.rules.list_rules.return_value = RuleList(
             rules=[Rule(name="projects/123/locations/us/instances/abc/rules/rule_1", displayName="Test Rule")],
@@ -32,7 +32,7 @@ def test_cli_secops_rules_list(cli_runner):
 
 
 def test_cli_secops_rules_get_deployment(cli_runner):
-    with patch("secops_toolkit.cli.secops.rules.cli_secops_rules.SecOpsClient") as mock_client:
+    with patch("secops_toolkit.cli.secops.cli_secops.SecOpsClient") as mock_client:
         instance = mock_client.return_value
         instance.rules.get_rule_deployment.return_value = RuleDeployment(
             name="projects/123/locations/us/instances/abc/rules/rule_1/deployment",

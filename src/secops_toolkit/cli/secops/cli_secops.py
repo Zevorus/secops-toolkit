@@ -1,5 +1,6 @@
 import click
 import json
+import sys
 from secops_toolkit.clients.secops_client import SecOpsClient
 from secops_toolkit.cli.secops.rules.cli_secops_rules import rules
 from secops_toolkit.utils.config_manager import (
@@ -12,10 +13,11 @@ from secops_toolkit.utils.config_manager import (
 @click.pass_context
 def secops(context):
     """Commands for Google SecOps."""
-    # Delay client initialization for config-related commands
+    # Delay client initialization for config-related commands OR help requests
     if (
         context.invoked_subcommand is not None
         and context.invoked_subcommand not in ["configure", "select-config"]
+        and not any(arg in ["--help", "-h"] for arg in sys.argv)
     ):
         try:
             context.obj = SecOpsClient()

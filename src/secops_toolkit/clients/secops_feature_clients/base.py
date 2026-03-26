@@ -12,10 +12,16 @@ LOGGER = logging.getLogger(__name__)
 class SecOpsBaseClient:
     """Base client sharing common functionality for Google SecOps."""
 
-    def __init__(self, version: str = "v1beta"):
+    def __init__(
+        self,
+        version: str = "v1beta",
+        credentials: Optional[Any] = None,
+        session: Optional[AuthorizedSession] = None,
+    ):
         # Ensure environment is loaded
         # 1. Load Global active profile first
         from secops_toolkit.utils.config_manager import get_global_config_path
+
         global_path = get_global_config_path()
         if global_path:
             load_dotenv(global_path)
@@ -33,8 +39,12 @@ class SecOpsBaseClient:
         self.version = version
 
         # Authentication parameters
-        self.credentials, _project_id = default()
-        self.session = AuthorizedSession(self.credentials)
+        if credentials and session:
+            self.credentials = credentials
+            self.session = session
+        else:
+            self.credentials, _project_id = default()
+            self.session = AuthorizedSession(self.credentials)
 
     def set_version(self, version: str) -> None:
         self.version = version

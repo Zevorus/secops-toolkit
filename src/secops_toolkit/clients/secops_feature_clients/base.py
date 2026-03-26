@@ -14,12 +14,19 @@ class SecOpsBaseClient:
 
     def __init__(self, version: str = "v1beta"):
         # Ensure environment is loaded
-        load_dotenv(find_dotenv())
+        # 1. Load Global active profile first
+        from secops_toolkit.utils.config_manager import get_global_config_path
+        global_path = get_global_config_path()
+        if global_path:
+            load_dotenv(global_path)
+
+        # 2. Support local .env override (True means it overwrites Global)
+        load_dotenv(find_dotenv(), override=True)
 
         self.base_url = os.getenv("SECOPS_API_ENDPOINT")
         self.project_number = os.getenv("SECOPS_PROJECT_NUMBER")
         self.instance_id = os.getenv("SECOPS_INSTANCE_ID")
-        self.location = os.getenv("SECOPS_LOCATION")
+        self.location = os.getenv("SECOPS_REGION")
 
         self._validate_env()
 

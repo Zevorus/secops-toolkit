@@ -21,7 +21,6 @@ class SecOpsBaseClient:
         # Ensure environment is loaded
         # 1. Load Global active profile first
         from secops_toolkit.utils.config_manager import get_global_config_path
-
         global_path = get_global_config_path()
         if global_path:
             load_dotenv(global_path)

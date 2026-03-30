@@ -48,15 +48,16 @@ class SecOpsBaseClient:
     def set_version(self, version: str) -> None:
         self.version = version
 
-    def _get_api_endpoint(self) -> str:
-        return f"{self.base_url}/{self.version}"
+    def _get_api_endpoint(self, override_version: Optional[str] = None) -> str:
+        version = override_version or self.version
+        return f"{self.base_url}/{version}"
     
-    def _get_api_parent(self) -> str:
+    def _get_api_parent(self, override_version: Optional[str] = None) -> str:
         # Google SecOps Resource Name Format: "projects/{PROJECT}/locations/{LOCATION}/instances/{INSTANCE}"
-        return f"{self._get_api_endpoint()}/projects/{self.project_number}/locations/{self.location}/instances/{self.instance_id}"
+        return f"{self._get_api_endpoint(override_version)}/projects/{self.project_number}/locations/{self.location}/instances/{self.instance_id}"
 
-    def _craft_url(self, *path_entries) -> str:
-        return f"{self._get_api_parent()}/{'/'.join(path_entries)}"
+    def _craft_url(self, *path_entries, override_version: Optional[str] = None) -> str:
+        return f"{self._get_api_parent(override_version)}/{'/'.join(path_entries)}"
 
     def _request(self, method: str, url: str, **kwargs) -> Optional[dict[str, Any]]:
         """Handles HTTP requests with error logging."""

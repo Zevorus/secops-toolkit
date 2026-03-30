@@ -103,5 +103,12 @@ class RuleName(BaseModel):
     instance_uuid: str
     rule_id: str
 
+class VerifyRuleResponse(BaseModel):
+    """Represents the response of verifying a rule text."""
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+    rule: Optional[Rule] = Field(None)
+    compilation_state: Optional[CompilationState] = Field(None, alias="compilationState")
+    compilation_diagnostics: List[CompilationDiagnostic] = Field([], alias="compilationDiagnostics")
+
 
 

@@ -10,9 +10,11 @@ class SecOpsClient(SecOpsBaseClient):
     
     def __init__(self, version: str = "v1beta"):
         super().__init__(version=version)
-        
+
         # seopcs-feature-clients
-        self.rules = RulesClient(version=version)
+        self.rules = RulesClient(
+            version=version, credentials=self.credentials, session=self.session
+        )
 
     def test_connectivity(self) -> bool:
         """Test REST API connectivity by running a trivial API call."""
